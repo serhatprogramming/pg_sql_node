@@ -5,8 +5,10 @@ app.use(express.json());
 import { PORT } from "./util/config.js";
 import { connectToDatabase } from "./util/db.js";
 import notesRouter from "./routes/notes.js";
+import errorHandler from "./util/errorHandler.js";
 
 app.use("/api/notes", notesRouter);
+app.use(errorHandler);
 
 const startServer = async () => {
   try {

@@ -3,61 +3,55 @@ const router = express.Router();
 
 import Note from "../models/index.js";
 
+// middleware to find note by id
+const noteFinder = async (req, res, next) => {
+  try {
+    req.note = await Note.findByPk(req.params.id);
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
 router.get("/", async (req, res) => {
   const notes = await Note.findAll();
   res.json(notes);
 });
 
-router.get("/:id", async (req, res) => {
-  try {
-    const note = await Note.findByPk(req.params.id);
-    if (note) {
-      console.log(note.toJSON());
-      res.json(note);
-    } else {
-      res.status(404).end();
-    }
-  } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+router.get("/:id", noteFinder, async (req, res) => {
+  if (req.note) {
+    res.json(req.note);
+  } else {
+    res.status(404).json({ error: "Note not found" });
   }
 });
 
-router.put("/:id", async (req, res) => {
-  try {
-    const note = await Note.findByPk(req.params.id);
-    if (note) {
-      note.important = req.body.important;
-      const updatedNote = await note.save();
-      res.status(200).json(updatedNote);
-    } else {
-      res.status(404).send("Note not found");
-    }
-  } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+router.put("/:id", noteFinder, async (req, res) => {
+  if (req.note) {
+    req.note.important = req.body.important;
+    const updatedNote = await req.note.save();
+    res.status(200).json(updatedNote);
+  } else {
+    res.status(404).send("Note not found");
   }
 });
 
-router.delete("/:id", async (req, res) => {
-  try {
-    const note = await Note.findByPk(req.params.id);
-    if (note) {
-      await note.destroy();
-      res.status(204).end();
-    } else {
-      res.status(404).send("Note not found");
-    }
-  } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+router.delete("/:id", noteFinder, async (req, res) => {
+  if (req.note) {
+    await req.note.destroy();
+    res.status(204).end();
+  } else {
+    res.status(404).send("Note not found");
   }
 });
 
-router.post("/", async (req, res) => {
+router.post("/", async (req, res, next) => {
   console.log(req.body);
   try {
     const note = await Note.create(req.body);
     res.json(note);
   } catch (error) {
-    res.status(404).json({ error: error });
+    next(error);
   }
 });
 
