@@ -2,57 +2,68 @@ import express from "express";
 const router = express.Router();
 
 import Note from "../models/index.js";
+import asyncHandler from "../util/asyncHandler.js";
 
 // middleware to find note by id
-const noteFinder = async (req, res, next) => {
-  try {
-    req.note = await Note.findByPk(req.params.id);
-    next();
-  } catch (error) {
-    next(error);
-  }
-};
-
-router.get("/", async (req, res) => {
-  const notes = await Note.findAll();
-  res.json(notes);
+const noteFinder = asyncHandler(async (req, res, next) => {
+  req.note = await Note.findByPk(req.params.id);
+  next();
 });
 
-router.get("/:id", noteFinder, async (req, res) => {
-  if (req.note) {
-    res.json(req.note);
-  } else {
-    res.status(404).json({ error: "Note not found" });
-  }
-});
+router.get(
+  "/",
+  asyncHandler(async (req, res) => {
+    const notes = await Note.findAll();
+    res.json(notes);
+  })
+);
 
-router.put("/:id", noteFinder, async (req, res) => {
-  if (req.note) {
-    req.note.important = req.body.important;
-    const updatedNote = await req.note.save();
-    res.status(200).json(updatedNote);
-  } else {
-    res.status(404).send("Note not found");
-  }
-});
+router.get(
+  "/:id",
+  noteFinder,
+  asyncHandler(async (req, res) => {
+    if (req.note) {
+      res.json(req.note);
+    } else {
+      res.status(404).json({ error: "Note not found" });
+    }
+  })
+);
 
-router.delete("/:id", noteFinder, async (req, res) => {
-  if (req.note) {
-    await req.note.destroy();
-    res.status(204).end();
-  } else {
-    res.status(404).send("Note not found");
-  }
-});
+router.put(
+  "/:id",
+  noteFinder,
+  asyncHandler(async (req, res) => {
+    if (req.note) {
+      req.note.important = req.body.important;
+      const updatedNote = await req.note.save();
+      res.status(200).json(updatedNote);
+    } else {
+      res.status(404).send("Note not found");
+    }
+  })
+);
 
-router.post("/", async (req, res, next) => {
-  console.log(req.body);
-  try {
+router.delete(
+  "/:id",
+  noteFinder,
+  asyncHandler(async (req, res) => {
+    if (req.note) {
+      await req.note.destroy();
+      res.status(204).end();
+    } else {
+      res.status(404).send("Note not found");
+    }
+  })
+);
+
+router.post(
+  "/",
+  asyncHandler(async (req, res) => {
+    console.log(req.body);
     const note = await Note.create(req.body);
     res.json(note);
-  } catch (error) {
-    next(error);
-  }
-});
+  })
+);
 
 export default router;
