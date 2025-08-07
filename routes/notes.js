@@ -5,14 +5,14 @@ import Note from "../models/index.js";
 import asyncHandler from "../util/asyncHandler.js";
 
 // middleware to find note by id
-const noteFinder = asyncHandler(async (req, res, next) => {
+const noteFinder = asyncHandler(async (req, _res, next) => {
   req.note = await Note.findByPk(req.params.id);
   next();
 });
 
 router.get(
   "/",
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (_req, res) => {
     const notes = await Note.findAll();
     res.json(notes);
   })
