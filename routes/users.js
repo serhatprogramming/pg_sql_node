@@ -1,9 +1,10 @@
 import express from "express";
 const router = express.Router();
 import { User } from "../models/index.js";
+import { Note } from "../models/index.js";
 
 router.get("/", async (req, res) => {
-  const users = await User.findAll();
+  const users = await User.findAll({ include: { model: Note } });
   res.json(users);
 });
 

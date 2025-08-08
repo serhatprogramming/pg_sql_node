@@ -2,6 +2,7 @@ import express from "express";
 const router = express.Router();
 
 import { Note } from "../models/index.js";
+import { User } from "../models/index.js";
 
 // middleware to find note by id
 const noteFinder = async (req, _res, next) => {
@@ -42,8 +43,8 @@ router.delete("/:id", noteFinder, async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  console.log(req.body);
-  const note = await Note.create(req.body);
+  const user = await User.findOne();
+  const note = await Note.create({ ...req.body, userId: user.id });
   res.json(note);
 });
 
