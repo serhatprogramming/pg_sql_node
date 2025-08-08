@@ -1,7 +1,7 @@
 import express from "express";
 const router = express.Router();
 
-import Note from "../models/index.js";
+import { Note } from "../models/index.js";
 import asyncHandler from "../util/asyncHandler.js";
 
 // middleware to find note by id
