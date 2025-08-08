@@ -5,9 +5,11 @@ app.use(express.json());
 import { PORT } from "./util/config.js";
 import { connectToDatabase } from "./util/db.js";
 import notesRouter from "./routes/notes.js";
+import usersRouter from "./routes/users.js";
 import errorHandler from "./util/errorHandler.js";
 
 app.use("/api/notes", notesRouter);
+app.use("/api/users", usersRouter);
 app.use(errorHandler);
 
 const startServer = async () => {
