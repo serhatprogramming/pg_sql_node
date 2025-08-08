@@ -28,7 +28,7 @@ router.put("/:id", noteFinder, async (req, res) => {
     const updatedNote = await req.note.save();
     res.status(200).json(updatedNote);
   } else {
-    res.status(404).send("Note not found");
+    res.status(404).json({ error: "Note not found" });
   }
 });
 
@@ -37,7 +37,7 @@ router.delete("/:id", noteFinder, async (req, res) => {
     await req.note.destroy();
     res.status(204).end();
   } else {
-    res.status(404).send("Note not found");
+    res.status(404).json({ error: "Note not found" });
   }
 });
 
