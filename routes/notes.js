@@ -1,8 +1,7 @@
 import express from "express";
 const router = express.Router();
 
-import { Note } from "../models/index.js";
-import { User } from "../models/index.js";
+import { Note, User } from "../models/index.js";
 import tokenExtractor from "../util/tokenExtractor.js";
 import userExtractor from "../util/userExtractor.js";
 
@@ -13,7 +12,13 @@ const noteFinder = async (req, _res, next) => {
 };
 
 router.get("/", async (req, res) => {
-  const notes = await Note.findAll();
+  const notes = await Note.findAll({
+    attributes: { exclude: ["userId"] },
+    include: {
+      model: User,
+      attributes: ["username", "name"],
+    },
+  });
   res.json(notes);
 });
 

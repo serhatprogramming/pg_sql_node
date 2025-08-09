@@ -4,7 +4,9 @@ import { User } from "../models/index.js";
 import { Note } from "../models/index.js";
 
 router.get("/", async (req, res) => {
-  const users = await User.findAll({ include: { model: Note } });
+  const users = await User.findAll({
+    include: { model: Note, attributes: { exclude: ["userId"] } },
+  });
   res.json(users);
 });
 
