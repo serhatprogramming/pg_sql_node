@@ -1,5 +1,6 @@
 import express from "express";
 const router = express.Router();
+import { Op } from "sequelize";
 
 import { Note, User } from "../models/index.js";
 import tokenExtractor from "../util/tokenExtractor.js";
@@ -12,12 +13,22 @@ const noteFinder = async (req, _res, next) => {
 };
 
 router.get("/", async (req, res) => {
+  const where = {};
+  if (req.query.important) {
+    where.important = req.query.important === "true";
+  }
+  if (req.query.search && req.query.search.trim() !== "") {
+    where.content = {
+      [Op.iLike]: `%${req.query.search}%`, // case-insensitive search
+    };
+  }
   const notes = await Note.findAll({
     attributes: { exclude: ["userId"] },
     include: {
       model: User,
       attributes: ["username", "name"],
     },
+    where,
   });
   res.json(notes);
 });
