@@ -11,7 +11,11 @@ const sequelize = new Sequelize(DATABASE_URL, {
 const umzugMigrations = new Umzug({
   migrations: { glob: "migrations/*.js" },
   context: sequelize.getQueryInterface(),
-  storage: new SequelizeStorage({ sequelize, tableName: "SequelizeMeta" }),
+  storage: new SequelizeStorage({
+    sequelize,
+    tableName: "migrations",
+    modelName: "Migration",
+  }),
   logger: console,
 });
 
@@ -19,7 +23,11 @@ const umzugMigrations = new Umzug({
 const umzugSeeders = new Umzug({
   migrations: { glob: "seeders/*.js" }, // separate folder for seeders
   context: sequelize.getQueryInterface(),
-  storage: new SequelizeStorage({ sequelize, tableName: "SequelizeData" }), // different table to track seeders
+  storage: new SequelizeStorage({
+    sequelize,
+    tableName: "seeders",
+    modelName: "Seeder",
+  }), // different table to track seeders
   logger: console,
 });
 
