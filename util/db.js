@@ -1,35 +1,50 @@
-// db.js (or whatever you call it)
 import { Sequelize } from "sequelize";
 import { Umzug, SequelizeStorage } from "umzug";
-import { DATABASE_URL } from "./config.js";
+import { DATABASE_URL, NODE_ENV } from "./config.js"; // Make sure NODE_ENV is in your config
+
 const sequelize = new Sequelize(DATABASE_URL, {
   dialect: "postgres",
   logging: console.log,
 });
 
-// Setup Umzug with your sequelize instance
-const umzug = new Umzug({
-  migrations: {
-    glob: "migrations/*.js",
-  },
-  context: sequelize.getQueryInterface(), // This provides queryInterface to migrations
-  storage: new SequelizeStorage({ sequelize }),
+// Umzug for migrations
+const umzugMigrations = new Umzug({
+  migrations: { glob: "migrations/*.js" },
+  context: sequelize.getQueryInterface(),
+  storage: new SequelizeStorage({ sequelize, tableName: "SequelizeMeta" }),
+  logger: console,
+});
+
+// Umzug for seeders
+const umzugSeeders = new Umzug({
+  migrations: { glob: "seeders/*.js" }, // separate folder for seeders
+  context: sequelize.getQueryInterface(),
+  storage: new SequelizeStorage({ sequelize, tableName: "SequelizeData" }), // different table to track seeders
   logger: console,
 });
 
 async function runMigrations() {
   console.log("Starting migrations...");
-  await umzug.up();
+  await umzugMigrations.up();
   console.log("Migrations complete");
 }
 
-// Connect to DB, then run migrations
+async function runSeeders() {
+  console.log("Starting seeders...");
+  await umzugSeeders.up();
+  console.log("Seeders complete");
+}
+
 const connectToDatabase = async () => {
   try {
     await sequelize.authenticate();
     console.log("Database connection established.");
 
     await runMigrations();
+
+    if (NODE_ENV === "development") {
+      await runSeeders();
+    }
   } catch (err) {
     console.error("Database connection or migration failed:", err);
     process.exit(1);
