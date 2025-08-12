@@ -2,13 +2,21 @@ import express from "express";
 const router = express.Router();
 import { User } from "../models/index.js";
 import { Note } from "../models/index.js";
+import { Team } from "../models/index.js";
 import isAdmin from "../util/isAdmin.js";
 import tokenExtractor from "../util/tokenExtractor.js";
 import userExtractor from "../util/userExtractor.js";
 
 router.get("/", async (req, res) => {
   const users = await User.findAll({
-    include: { model: Note, attributes: { exclude: ["userId"] } },
+    include: [
+      { model: Note, attributes: { exclude: ["userId"] } },
+      {
+        model: Team,
+        attributes: { exclude: ["id"] },
+        through: { attributes: [] },
+      },
+    ],
   });
   res.json(users);
 });
