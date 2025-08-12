@@ -1,6 +1,17 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-export const DATABASE_URL = process.env.DATABASE_URL;
+const env = process.env.NODE_ENV;
+
+let databaseUrl;
+if (env === "production") {
+  databaseUrl = process.env.DATABASE_URL;
+} else if (env === "test") {
+  databaseUrl = process.env.DB_TEST;
+} else {
+  databaseUrl = process.env.DB_DEV;
+}
+
+export const DATABASE_URL = databaseUrl;
 export const PORT = process.env.PORT || 3001;
 export const JWT_SECRET = process.env.JWT_SECRET;
