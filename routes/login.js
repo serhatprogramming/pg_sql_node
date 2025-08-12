@@ -9,6 +9,9 @@ router.post("/", async (req, res) => {
 
   // Validate user credentials
   const user = await User.findOne({ where: { username } });
+  if (user && user.disabled) {
+    return res.status(403).json({ error: "User is disabled" });
+  }
   if (user && "secret" === password) {
     const token = jwt.sign({ username, id: user.id }, JWT_SECRET, {
       expiresIn: "1h",
