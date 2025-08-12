@@ -2,9 +2,18 @@ import { Sequelize } from "sequelize";
 import { Umzug, SequelizeStorage } from "umzug";
 import { DATABASE_URL, NODE_ENV } from "./config.js"; // Make sure NODE_ENV is in your config
 
+const isProduction = NODE_ENV === "production";
 const sequelize = new Sequelize(DATABASE_URL, {
   dialect: "postgres",
   logging: console.log,
+  dialectOptions: isProduction
+    ? {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false,
+        },
+      }
+    : {}, // no SSL for dev/test
 });
 
 // Umzug for migrations
